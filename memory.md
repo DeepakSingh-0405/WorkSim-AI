@@ -2429,3 +2429,156 @@ Before starting development:
 4. (Optional) Set up Vercel account for deployment
 5. (Optional) Configure Google OAuth in Supabase dashboard
 6. Configure Supabase MCP in development environment
+
+---
+
+## 48. Implementation Status & Phase Completion Summary
+
+As of the current build, all core phases of WorkSim have been fully implemented, verified, and running locally on Next.js 16 (App Router + Turbopack):
+
+### Completed Phases
+- **Phase 1 — Foundation & Auth**:
+  - Supabase Auth SSR integration (`@supabase/ssr`) with middleware proxy (`src/proxy.ts`).
+  - Dark mode design system: obsidian palette (`#0a0a0a`), crimson accent glow (`#c40505`), glassmorphic panels, and grain overlays.
+  - Landing page (`/`) with Hero, Interactive Live Preview, Features, How It Works, Why WorkSim, and CTA.
+- **Phase 2 — Candidate Dashboard & Skill Profile**:
+  - Route: `/dashboard` (protected via Supabase auth proxy).
+  - Dynamic candidate profile in header with initials avatar, display name, and profile edit modal.
+  - Active P1 Incident banner ("TechFlow Inc. — Payment API Outage").
+  - Verified Skill Profile with live readiness telemetry (Debugging, Technical Reasoning, Problem Solving, Communication, Prioritization).
+  - Scenario catalog and audit trail of recent simulation sessions.
+- **Phase 3 — Incident Simulation Workspace**:
+  - Route: `/simulate/[scenarioId]` (default scenario: `production-incident-payment-api`).
+  - Multi-panel desktop war room (Monaco editor for `config.ts` and `client.ts`, diagnostic terminal shell, live telemetry log viewer, multi-agent Slack chat, 35-minute countdown SLA clock).
+  - Terminal shell supporting `npm test`, `git diff`, `help`, `clear` with realistic p99 timeout evaluation.
+- **Phase 4 — Multi-Agent AI System with Real Gemini**:
+  - Route: `/api/chat` using `@ai-sdk/google` (`gemini-3.6-flash`).
+  - 3 dedicated AI personas with isolated message threads and strict behavioral guardrails:
+    1. **Priya Sharma (EM)**: Assigns tasks, demands status updates, acknowledges candidate updates. Never provides code or solutions.
+    2. **Alex Chen (SWE Coworker)**: Minimal directional guidance/hints only without giving away answers.
+    3. **Marcus Vance (Client VP of E-Commerce at BuyFast)**: Non-technical executive panicked about $15k/min revenue loss; demands business ETAs and rejects technical jargon.
+  - Word-by-word real-time progressive stream reader into the client state (`ReadableStreamDefaultReader<Uint8Array>`) eliminating perceived chat latency.
+- **Phase 5 — Autonomous AI Telemetry Evaluation Engine**:
+  - Route: `/api/evaluate`.
+  - Sub-second evaluation (~719ms vs 23.8s) achieved by replacing bulky `generateObject` with targeted JSON extraction.
+  - Accurate timeout parsing (`timeout >= 3200ms` vs Stripe 3200ms p99 latency) supporting any value (e.g., 5000ms, 8000ms, 10000ms).
+  - Telemetry verification (`npm test` pass/fail status from session events).
+  - Stakeholder communication evaluation (differentiating updates sent to Priya vs Marcus).
+  - Dynamic Scorecard UI at `/evaluation/[id]`:
+    - 5-dimension Recharts radar chart.
+    - Animated CountUpScore percentage.
+    - Dynamic readiness tier: **Senior Ready** (≥80%), **Mid-Level Competent** (65–79%), **Needs Improvement** (<65%).
+    - Dynamic status badge: **Incident Resolved** vs **Incident Unresolved**.
+    - Dynamic EvidenceCards displaying exact candidate code diff, test execution output, and Slack briefings.
+- **Phase 6 — Landing Page Onboarding & Profile Customization**:
+  - Landing navbar replaced "Launch Simulation" with dedicated **Log In** (`/login`) and **Get Started** (`/signup`) onboarding buttons.
+  - Smart session awareness: automatically switches to **Dashboard** (`/dashboard`) if user is already signed in.
+  - Dynamic user profile system: pulls user name from Supabase auth metadata and `localStorage`, allows direct in-app display name editing from the dashboard navbar, and displays real name on evaluations and badges.
+  - Cleaned up nested `<Link><Logo /></Link>` hydration errors.
+
+---
+
+## 49. File Structure & Architectural Map
+
+```
+WorkSim/
+├── public/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── chat/
+│   │   │   │   └── route.ts          # Multi-agent streaming chat (Priya, Alex, Marcus) via gemini-3.6-flash
+│   │   │   └── evaluate/
+│   │   │       └── route.ts          # Sub-second AI evaluation engine (code diff, test events, communication)
+│   │   │   ├── auth/callback/
+│   │   │   │   └── route.ts          # Supabase auth code exchange callback
+│   │   │   ├── dashboard/
+│   │   │   │   └── page.tsx          # Candidate dashboard (profile, active incident, radar, catalog)
+│   │   │   ├── evaluation/[id]/
+│   │   │   │   └── page.tsx          # Dynamic workplace readiness scorecard (radar chart, evidence cards)
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx          # Sign in page with guest bypass
+│   │   │   ├── signup/
+│   │   │   │   └── page.tsx          # Candidate registration page with full name capture
+│   │   │   ├── simulate/[scenarioId]/
+│   │   │   │   └── page.tsx          # Incident war room (Monaco, terminal, log viewer, multi-agent chat)
+│   │   │   ├── layout.tsx            # Root layout with font tokens and metadata
+│   │   │   └── page.tsx              # Landing page
+│   ├── components/
+│   │   ├── dashboard/
+│   │   │   ├── CurrentMission.tsx    # Active P1 incident card
+│   │   │   ├── DashboardNav.tsx      # Dashboard topbar with dynamic profile & edit modal
+│   │   │   ├── RecentActivity.tsx    # Recent simulation run history
+│   │   │   ├── ScenarioList.tsx      # Available scenario catalog
+│   │   │   └── SkillProfile.tsx      # Skill breakdown progress bars
+│   │   ├── evaluation/
+│   │   │   ├── CountUpScore.tsx      # Animated percentage counter
+│   │   │   ├── EvidenceCards.tsx     # Dynamic verified evaluation artifacts (code, terminal, slack, log)
+│   │   │   └── SkillRadarChart.tsx   # 5-dimension Recharts radar visualization
+│   │   ├── landing/
+│   │   │   ├── Comparison.tsx        # WorkSim vs LeetCode/Courses comparison
+│   │   │   ├── CtaSection.tsx        # Bottom onboarding CTA
+│   │   │   ├── Features.tsx          # Key platform features
+│   │   │   ├── Footer.tsx            # Landing footer
+│   │   │   ├── Hero.tsx              # Landing hero with headline and CTA
+│   │   │   ├── HowItWorks.tsx        # 4-step candidate workflow
+│   │   │   ├── Navbar.tsx            # Landing navbar with Log In / Get Started buttons & auth state
+│   │   │   └── SimulatorPreview.tsx  # Interactive war room preview
+│   │   └── shared/
+│   │       ├── AnimatedBackground.tsx# Ambient red/dark glow mesh
+│   │       ├── GlowButton.tsx        # Primary/secondary glowing action buttons
+│   │       ├── GrainOverlay.tsx      # Subtle film grain SVG overlay
+│   │       └── Logo.tsx              # Stylized WorkSim brand logo (hydration-safe)
+│   ├── lib/
+│   │   ├── scenarios/
+│   │   │   └── payment-incident.ts   # P1 Payment Incident definition, logs, and files
+│   │   └── supabase/
+│   │       ├── client.ts             # Client-side Supabase client (`createBrowserClient`)
+│   │       └── server.ts             # Server-side Supabase client (`createServerClient`)
+│   └── proxy.ts                      # Route middleware for Supabase session & auth protection
+├── .env.local                        # Local environment secrets (Supabase, Gemini API Key)
+├── DESIGN.md                         # Design tokens, typography, and aesthetic guide
+├── implementation_plan.md            # Detailed technical specs and sprint plans
+└── memory.md                         # Complete project memory and context
+```
+
+---
+
+## 50. Multi-Agent Personas & Guardrails
+
+| Agent | Name & Role | System Prompt Guardrails | UI Location |
+| :--- | :--- | :--- | :--- |
+| `priya` | **Priya Sharma**<br>Engineering Manager | Strict EM. Only assigns tasks, asks for status/ETAs, and acknowledges updates. NEVER provides technical hints, code, or debugging assistance. Keeps responses concise (<25 words). | Workspace Slack Panel (Tab 1) |
+| `alex` | **Alex Chen**<br>Senior Coworker | Helpful peer SWE. Offers directional hints (check logs, run `npm test`) but NEVER writes code or gives away the solution. Encourages candidate to drive the fix. | Workspace Slack Panel (Tab 2) |
+| `client` | **Marcus Vance**<br>VP of E-Commerce at BuyFast | Panicked business stakeholder losing $15,000/min in abandoned carts. Emphasizes SLA urgency, asks for plain-English ETAs, and rejects engineering jargon. | Workspace Slack Panel (Tab 3 - Amber Alert) |
+
+---
+
+## 51. Evaluation Engine Logic & Scoring Calibration
+
+### Root Cause Diagnosis
+- Upstream gateway: Stripe API p99 latency is **3,200ms** (peaks at 4,800ms).
+- Bug: `src/services/payment/config.ts` had `timeout: 2000ms` (reduced in v2.4.1), causing premature `TimeoutError` and all 3 retries to exhaust.
+- Valid Solution: Setting `timeout >= 3200ms` in `config.ts` (recommended standard is **5,000ms**).
+
+### Scoring Matrix & Weights
+- **Debugging (25%)**: Detected timeout mismatch between config (2000ms) and telemetry (3200ms).
+- **Problem Solving (25%)**: Configured a viable timeout (≥3200ms) or retry strategy that resolves customer checkout failure.
+- **Technical Reasoning (20%)**: Ran diagnostic integration tests (`npm test`) to verify before hotfixing. Penalized if deployed untested.
+- **Communication (20%)**: Proactive briefings sent to Priya (EM) and Marcus (Client). Penalized if candidate left stakeholders in a blackout.
+- **Prioritization (10%)**: Focused on resolving the active P1 outage within the 35-minute SLA.
+
+### Score Tiers
+- **Senior Ready (≥ 80%)**: Bug resolved, tests verified, stakeholders briefed.
+- **Mid-Level Competent (65% – 79%)**: Bug resolved, but missed test verification or client communication.
+- **Needs Improvement (< 65%)**: Bug unresolved (timeout remains <3200ms) or candidate abandoned task.
+
+---
+
+## 52. Known Environment & API Caveats
+
+1. **Gemini Model Version**: Use `gemini-3.6-flash` with `@ai-sdk/google`. Earlier models (`gemini-1.5-flash`, `gemini-2.5-flash`) return 404 with current project keys.
+2. **SDK Arguments**: In current `@ai-sdk/google`, pass model parameters via prompt constraints rather than unsupported top-level options.
+3. **Progressive Streaming**: Use `result.toTextStreamResponse()` on `/api/chat` and decode with `ReadableStreamDefaultReader` on the frontend for instant word-by-word streaming.
+4. **Supabase SSR**: In Next.js 16 App Router, auth cookie operations are handled via `proxy.ts` middleware and `@supabase/ssr`.
+5. **Hydration Safety**: `<Logo>` defaults `href` to `undefined` so that wrapping it in a Next.js `<Link>` does not produce invalid nested `<a>` elements.
