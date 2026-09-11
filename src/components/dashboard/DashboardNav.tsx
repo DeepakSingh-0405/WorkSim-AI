@@ -19,6 +19,8 @@ import {
   Mail,
 } from 'lucide-react';
 
+import { getScoreMetrics, subscribeScoreUpdates, ScoreMetrics } from '@/lib/scores';
+
 interface DashboardNavProps {
   userName?: string;
   userEmail?: string;
@@ -28,7 +30,7 @@ interface DashboardNavProps {
 export function DashboardNav({
   userName: initialUserName,
   userEmail: initialUserEmail,
-  readinessScore = 88,
+  readinessScore: propReadinessScore,
 }: DashboardNavProps) {
   const router = useRouter();
   const [userName, setUserName] = useState<string>(initialUserName || '');
@@ -37,8 +39,16 @@ export function DashboardNav({
   const [editingName, setEditingName] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [scoreMetrics, setScoreMetrics] = useState<ScoreMetrics | null>(null);
+  const [scoreMode, setScoreMode] = useState<'latest' | 'average'>('latest');
 
   useEffect(() => {
+    // 0. Hydrate score metrics
+    setScoreMetrics(getScoreMetrics());
+    const unsubscribeScores = subscribeScoreUpdates((newMetrics) => {
+      setScoreMetrics(newMetrics);
+    });
+
     // 1. Check localStorage for instant hydration
     if (typeof window !== 'undefined') {
       const storedName = localStorage.getItem('worksim_user_name');
@@ -185,14 +195,29 @@ export function DashboardNav({
             </span>
           </div>
 
-          {/* Center: Readiness Score Pill */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono">
-            <Award className="w-3.5 h-3.5 text-[#c40505]" />
-            <span className="text-[#a1a1a1]">Readiness:</span>
-            <span className="font-bold text-white">{readinessScore}%</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
-            <span className="text-[#22c55e] text-[11px]">Senior On-Call Tier</span>
-          </div>
+          {/* Center: Readiness Score Pill with Toggle (Current vs Average) */}
+          {(() => {
+            const currentScore = scoreMetrics?.latestScore ?? propReadinessScore ?? 88;
+            const avgScore = scoreMetrics?.averageScore ?? propReadinessScore ?? 88;
+            const displayScore = scoreMode === 'latest' ? currentScore : avgScore;
+            return (
+              <button
+                type="button"
+                onClick={() => setScoreMode((prev) => (prev === 'latest' ? 'average' : 'latest'))}
+                title="Click to toggle between Current Run Score and Cumulative Average Score"
+                className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/20 transition-all text-xs font-mono group cursor-pointer"
+              >
+                <Award className="w-3.5 h-3.5 text-[#c40505] group-hover:scale-110 transition-transform" />
+                <span className="text-[#a1a1a1]">
+                  {scoreMode === 'latest' ? 'Score (Current):' : 'Score (Average):'}
+                </span>
+                <span className="font-bold text-white text-sm">{displayScore}%</span>
+                <span className="text-[10px] text-[#22c55e] bg-[#22c55e]/10 px-1.5 py-0.5 rounded border border-[#22c55e]/20 font-semibold">
+                  {scoreMode === 'latest' ? 'Latest' : 'Avg of ' + (scoreMetrics?.totalRuns || 1)}
+                </span>
+              </button>
+            );
+          })()}
 
           {/* Right: Actions & User Info */}
           <div className="flex items-center gap-3">

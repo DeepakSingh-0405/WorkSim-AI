@@ -2475,6 +2475,29 @@ As of the current build, all core phases of WorkSim have been fully implemented,
   - Smart session awareness: automatically switches to **Dashboard** (`/dashboard`) if user is already signed in.
   - Dynamic user profile system: pulls user name from Supabase auth metadata and `localStorage`, allows direct in-app display name editing from the dashboard navbar, and displays real name on evaluations and badges.
   - Cleaned up nested `<Link><Logo /></Link>` hydration errors.
+- **Phase 7 — Landing Page UI/UX Motion & Interactivity Overhaul**:
+  - Installed and integrated **Lenis** smooth momentum scrolling (`lenis`), tightly locked to **GSAP ScrollTrigger** via `gsap.ticker`.
+  - Replaced native `scroll-behavior: smooth` with dedicated Lenis smooth scroll CSS rules; added anchor click interception for smooth deceleration.
+  - Solved canvas vertical squash distortion: configured canvas pixel buffer to strictly match `window.innerWidth` and `window.innerHeight` with `window.devicePixelRatio` scaling.
+  - Enhanced particle nodes with prominent spherical radii (2.5px–6.0px), dual-layer bloom (white specular core, crimson body, 18–28px glow halo), aerodynamic velocity streamers (`tailLength`), and extended network links (210px threshold with 0.32–0.85 opacity).
+  - Designed atmospheric shifting nebulae (crimson & deep aurora), 70px high-tech cyber grid with pulsing crimson `+` crosshairs at 140px intervals, and tuned pointer glow (190px radius, 0.11 peak opacity).
+  - De-hazed film grain overlay (reduced from 30% to 12% opacity) to ensure crystal-clear background contrast and particle luminescence.
+  - Built `ScrollOrchestrator.tsx` for multi-layer hero parallax, 3D perspective reveals (`rotateX: 6deg -> 0deg`), self-drawing SVG connecting path in `HowItWorks.tsx`, opposing horizontal slide-ins in `ComparisonSection.tsx`, 3D interactive spotlight cards in `FeaturesGrid.tsx`, and zooming CTA card.
+- **Phase 8 — Simulation Workplace VS Code Resizability, Realistic Terminal, & Live Dashboard Scoring**:
+  - **VS Code-Grade Resizable Panels**:
+    - Overhauled `simulate/[scenarioId]/page.tsx` with continuous mouse drag listeners and visual splitter handles (`col-resize` and `row-resize` with hover glow and double-click reset).
+    - **Explorer Side Panel (Left)**: Resizable (160px–450px, default 240px) with interactive project file tree (`config.ts`, `client.ts`), modified status indicator dots, and live telemetry audit cards. Toggleable/collapsible via top header or activity bar.
+    - **Center Coding Panel & Split Terminal Drawer**: Monaco editor on top with an integrated bottom split terminal drawer resizable vertically (`row-resize`, 100px–viewport height) for simultaneous code editing and shell execution.
+    - **Right Agent Panel (Chat)**: Resizable (260px–650px, default 360px) housing Priya Sharma, Alex Chen, and Marcus Vance chat streams.
+  - **Realistic SRE/Developer Diagnostic Terminal**:
+    - Up/Down arrow key command history navigation.
+    - Supported commands: `npm test`, `git diff`, `git status`, `git log`, `git branch`, `curl localhost:8080/health` (504 before fix, 200 after), `curl api.stripe.com`, `cat config.ts` / `cat client.ts`, `grep -rn "timeout" .`, `ls` / `ls -la`, `ps aux` / `top`, `uptime`, `ping api.stripe.com`, `npm run build`, `npm run lint`, `node -v`, `npm -v`, `whoami`, `env`, `history`, `clear`, `help`.
+  - **Dynamic Dashboard Scoring & Telemetry Persistence**:
+    - Created `src/lib/scores.ts` to manage evaluation history, compute latest vs running average scores, calculate aggregated skill metrics, and broadcast custom window events for immediate cross-component reactivity.
+    - Updated `handleFinalSubmit` to record the evaluated score, pass/fail status, duration, and skill breakdown.
+    - Updated `DashboardNav.tsx` with an interactive Readiness Pill that toggles between **Current Run Score** (e.g. `92% Latest`) and **Cumulative Average Score** (e.g. `90% Avg of N`).
+    - Updated `SkillProfile.tsx` to dynamically animate progress bars from the candidate's actual evaluated skill telemetry.
+    - Updated `RecentActivity.tsx` to dynamically list all historical simulation runs with real scores, timestamps, durations, and pass/fail badges linking to scorecards.
 
 ---
 
@@ -2501,41 +2524,44 @@ WorkSim/
 │   │   │   ├── signup/
 │   │   │   │   └── page.tsx          # Candidate registration page with full name capture
 │   │   │   ├── simulate/[scenarioId]/
-│   │   │   │   └── page.tsx          # Incident war room (Monaco, terminal, log viewer, multi-agent chat)
+│   │   │   │   └── page.tsx          # Incident war room (VS Code resizable panels, terminal shell, Monaco, chat)
+│   │   │   ├── globals.css           # Design tokens, Lenis smooth scrolling rules, grain keyframes
 │   │   │   ├── layout.tsx            # Root layout with font tokens and metadata
-│   │   │   └── page.tsx              # Landing page
-│   ├── components/
-│   │   ├── dashboard/
-│   │   │   ├── CurrentMission.tsx    # Active P1 incident card
-│   │   │   ├── DashboardNav.tsx      # Dashboard topbar with dynamic profile & edit modal
-│   │   │   ├── RecentActivity.tsx    # Recent simulation run history
-│   │   │   ├── ScenarioList.tsx      # Available scenario catalog
-│   │   │   └── SkillProfile.tsx      # Skill breakdown progress bars
-│   │   ├── evaluation/
-│   │   │   ├── CountUpScore.tsx      # Animated percentage counter
-│   │   │   ├── EvidenceCards.tsx     # Dynamic verified evaluation artifacts (code, terminal, slack, log)
-│   │   │   └── SkillRadarChart.tsx   # 5-dimension Recharts radar visualization
-│   │   ├── landing/
-│   │   │   ├── Comparison.tsx        # WorkSim vs LeetCode/Courses comparison
-│   │   │   ├── CtaSection.tsx        # Bottom onboarding CTA
-│   │   │   ├── Features.tsx          # Key platform features
-│   │   │   ├── Footer.tsx            # Landing footer
-│   │   │   ├── Hero.tsx              # Landing hero with headline and CTA
-│   │   │   ├── HowItWorks.tsx        # 4-step candidate workflow
-│   │   │   ├── Navbar.tsx            # Landing navbar with Log In / Get Started buttons & auth state
-│   │   │   └── SimulatorPreview.tsx  # Interactive war room preview
-│   │   └── shared/
-│   │       ├── AnimatedBackground.tsx# Ambient red/dark glow mesh
-│   │       ├── GlowButton.tsx        # Primary/secondary glowing action buttons
-│   │       ├── GrainOverlay.tsx      # Subtle film grain SVG overlay
-│   │       └── Logo.tsx              # Stylized WorkSim brand logo (hydration-safe)
-│   ├── lib/
-│   │   ├── scenarios/
-│   │   │   └── payment-incident.ts   # P1 Payment Incident definition, logs, and files
-│   │   └── supabase/
-│   │       ├── client.ts             # Client-side Supabase client (`createBrowserClient`)
-│   │       └── server.ts             # Server-side Supabase client (`createServerClient`)
-│   └── proxy.ts                      # Route middleware for Supabase session & auth protection
+│   │   │   └── page.tsx              # Landing page (ScrollOrchestrator, animated background)
+│   │   ├── components/
+│   │   │   ├── dashboard/
+│   │   │   │   ├── CurrentMission.tsx    # Active P1 incident card
+│   │   │   │   ├── DashboardNav.tsx      # Dashboard topbar with dynamic profile & toggleable readiness score pill
+│   │   │   │   ├── RecentActivity.tsx    # Dynamic simulation run history & score audit trail
+│   │   │   │   ├── ScenarioList.tsx      # Available scenario catalog
+│   │   │   │   └── SkillProfile.tsx      # Dynamic skill breakdown progress bars from evaluation history
+│   │   │   ├── evaluation/
+│   │   │   │   ├── CountUpScore.tsx      # Animated percentage counter
+│   │   │   │   ├── EvidenceCards.tsx     # Dynamic verified evaluation artifacts (code, terminal, slack, log)
+│   │   │   │   └── SkillRadarChart.tsx   # 5-dimension Recharts radar visualization
+│   │   │   ├── landing/
+│   │   │   │   ├── ComparisonSection.tsx # Opposing horizontal slide-in comparison
+│   │   │   │   ├── CTASection.tsx        # Bottom onboarding CTA with floating micro-particles
+│   │   │   │   ├── FeaturesGrid.tsx      # 3D interactive spotlight tilt feature cards
+│   │   │   │   ├── Footer.tsx            # Landing footer
+│   │   │   │   ├── Hero.tsx              # Parallax depth hero with clip-path reveal and 3D tilt
+│   │   │   │   ├── HowItWorks.tsx        # 4-step workflow with self-drawing SVG connector path
+│   │   │   │   ├── Navbar.tsx            # Landing navbar with Log In / Get Started buttons & auth state
+│   │   │   │   ├── ScrollOrchestrator.tsx# GSAP ScrollTrigger + Lenis smooth scroll engine
+│   │   │   │   └── WorkplacePreview.tsx  # 3D perspective workplace simulator preview
+│   │   │   └── shared/
+│   │   │       ├── AnimatedBackground.tsx# High-visibility interactive canvas (magnetic nodes, nebulae, grid)
+│   │   │       ├── GlowButton.tsx        # Primary/secondary glowing action buttons
+│   │   │       ├── GrainOverlay.tsx      # Subtle film grain SVG overlay (12% opacity)
+│   │   │       └── Logo.tsx              # Stylized WorkSim brand logo (hydration-safe)
+│   │   ├── lib/
+│   │   │   ├── scenarios/
+│   │   │   │   └── payment-incident.ts   # P1 Payment Incident definition, logs, and files
+│   │   │   ├── scores.ts                 # Evaluation history storage, score metrics computation, & events
+│   │   │   └── supabase/
+│   │   │       ├── client.ts             # Client-side Supabase client (`createBrowserClient`)
+│   │   │       └── server.ts             # Server-side Supabase client (`createServerClient`)
+│   │   └── proxy.ts                      # Route middleware for Supabase session & auth protection
 ├── .env.local                        # Local environment secrets (Supabase, Gemini API Key)
 ├── DESIGN.md                         # Design tokens, typography, and aesthetic guide
 ├── implementation_plan.md            # Detailed technical specs and sprint plans
@@ -2582,3 +2608,49 @@ WorkSim/
 3. **Progressive Streaming**: Use `result.toTextStreamResponse()` on `/api/chat` and decode with `ReadableStreamDefaultReader` on the frontend for instant word-by-word streaming.
 4. **Supabase SSR**: In Next.js 16 App Router, auth cookie operations are handled via `proxy.ts` middleware and `@supabase/ssr`.
 5. **Hydration Safety**: `<Logo>` defaults `href` to `undefined` so that wrapping it in a Next.js `<Link>` does not produce invalid nested `<a>` elements.
+6. **Canvas DPI & Viewport Scaling**: Never assign canvas pixel buffers to `scrollHeight` if the canvas element is styled with `fixed inset-0`. Fixed background canvases must scale to `innerWidth * dpr` and `innerHeight * dpr` to avoid vertical coordinate squashing.
+7. **Smooth Scroll Harmonization**: When using Lenis, remove `scroll-behavior: smooth` from CSS `html` to prevent animation fighting. Link `lenis.on('scroll', ScrollTrigger.update)` to keep GSAP timelines synchronized.
+
+---
+
+## 53. VS Code-Style Resizable Workspace & Diagnostic Terminal Engine
+
+### Resizable Layout Engine
+- **Explorer Side Panel**: Mouse drag handle with `col-resize` clamped between 160px and 450px (default 240px). Double-click divider resets to 240px. Collapsible via header button or activity bar.
+- **Bottom Split Terminal Drawer**: Mounted directly beneath Monaco code editor with a `row-resize` divider clamped between 100px and the viewport boundary (default 230px). Allows candidate to simultaneously view code and run diagnostic terminal commands.
+- **Agent Chat Panel**: Mouse drag handle with `col-resize` clamped between 260px and 650px (default 360px). Double-click resets to 360px.
+
+### Diagnostic Terminal Shell
+- **Arrow Key Navigation**: Supports Up/Down arrow keys to recall previous commands from `commandHistoryList`.
+- **Supported Realistic Commands**:
+  - `npm test` / `test`: Evaluates config timeout against 3200ms threshold; outputs realistic test suite report.
+  - `git diff`: Computes unified diff of `config.ts` vs default 2000ms baseline.
+  - `git status` / `git log` / `git branch`: Realistic repository state indicators.
+  - `curl localhost:8080/health`: Returns 504 Gateway Timeout or 200 OK with latency stats based on code fix.
+  - `curl api.stripe.com`: Returns live upstream degraded telemetry and 3200ms p99 latency warning.
+  - `cat config.ts` / `cat client.ts`: Outputs line-numbered file contents.
+  - `grep -rn "timeout" .`: Searches codebase for timeout usages.
+  - `ls -la` / `ps aux` / `top` / `uptime` / `ping` / `npm run build` / `npm run lint` / `node -v` / `npm -v` / `whoami` / `env` / `history` / `clear` / `help`.
+
+---
+
+## 54. Dynamic Dashboard Scoring & Telemetry Persistence Architecture
+
+### Scoring Engine (`src/lib/scores.ts`)
+- **Evaluation History**: Stores completed candidate runs in `localStorage` under `worksim_evaluations_history` (also saved to Supabase when authenticated).
+- **Metric Computation**:
+  - `latestScore`: Percentage score of the most recent simulation run.
+  - `averageScore`: Arithmetic mean of overall scores across all historical simulation runs.
+  - `totalRuns`: Count of completed simulations.
+  - `skillScores`: Running mean across the 5 core dimensions:
+    - Root Cause Debugging
+    - Technical Reasoning
+    - Problem Solving
+    - Manager Communication
+    - Incident Prioritization
+- **Event Bus**: Custom `worksim_score_updated` window event guarantees instant reactivity across all hydrated dashboard components when an evaluation completes.
+
+### UI Integration
+- **DashboardNav (`DashboardNav.tsx`)**: Interactive Readiness Pill in topbar toggles between **Score (Current)** and **Score (Average)** on click.
+- **SkillProfile (`SkillProfile.tsx`)**: Progress bars animate dynamically based on the user's running skill telemetry.
+- **RecentActivity (`RecentActivity.tsx`)**: Displays chronological audit trail of all candidate incident submissions with scores, durations, and direct links to scorecards.
