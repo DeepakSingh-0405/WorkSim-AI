@@ -1,20 +1,64 @@
 'use client';
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { GlowButton } from '@/components/shared/GlowButton';
 import { ArrowRight, Sparkles, Terminal, ShieldAlert, Cpu, CheckCircle2 } from 'lucide-react';
 
 export function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  // Mouse tilt effect for the hero section
+  useEffect(() => {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!heroRef.current) return;
+      const rect = heroRef.current.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const maxTilt = 2.5;
+      const x = ((e.clientY - centerY) / (rect.height / 2)) * -maxTilt;
+      const y = ((e.clientX - centerX) / (rect.width / 2)) * maxTilt;
+      setTilt({ x: Math.max(-maxTilt, Math.min(maxTilt, x)), y: Math.max(-maxTilt, Math.min(maxTilt, y)) });
+    };
+
+    const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+
+    window.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseleave', handleMouseLeave);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
   return (
-    <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center">
+    <section
+      ref={heroRef}
+      data-section="hero"
+      className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden"
+      style={{
+        perspective: '1200px',
+      }}
+    >
+      <div
+        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col items-center"
+        style={{
+          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          transition: 'transform 0.15s ease-out',
+          transformStyle: 'preserve-3d',
+        }}
+      >
         {/* Top Status Pill / Badge */}
         <motion.div
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          data-parallax-speed="0.15"
           className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.1] text-xs font-mono text-[#a1a1a1] mb-8 hover:border-[#c40505]/40 transition-colors shadow-[0_0_20px_rgba(0,0,0,0.4)]"
         >
           <span className="relative flex h-2 w-2">
@@ -26,24 +70,51 @@ export function Hero() {
           <span className="text-[#a1a1a1]">P1 Payment Outage Scenario Live</span>
         </motion.div>
 
-        {/* Main Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#fafafa] max-w-4xl leading-[1.1] text-balance mb-6"
-        >
-          Practice Real Work.{' '}
-          <span className="bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
-            Not Video Courses.
-          </span>
-        </motion.h1>
+        {/* Main Headline — clip-path word reveal */}
+        <div data-parallax-speed="0.25" className="overflow-hidden mb-6">
+          <motion.h1
+            className="text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#fafafa] max-w-4xl leading-[1.1] text-balance"
+          >
+            {['Practice', 'Real', 'Work.'].map((word, i) => (
+              <motion.span
+                key={word}
+                initial={{ opacity: 0, y: 40, clipPath: 'inset(0 100% 0 0)' }}
+                animate={{ opacity: 1, y: 0, clipPath: 'inset(0 0% 0 0)' }}
+                transition={{
+                  duration: 0.7,
+                  delay: 0.15 + i * 0.12,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="inline-block mr-[0.25em]"
+              >
+                {word}
+              </motion.span>
+            ))}
+            <br />
+            {['Not', 'Video', 'Courses.'].map((word, i) => (
+              <motion.span
+                key={word}
+                initial={{ opacity: 0, y: 40, clipPath: 'inset(0 100% 0 0)' }}
+                animate={{ opacity: 1, y: 0, clipPath: 'inset(0 0% 0 0)' }}
+                transition={{
+                  duration: 0.7,
+                  delay: 0.55 + i * 0.12,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="inline-block mr-[0.25em] bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent"
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.h1>
+        </div>
 
         {/* Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          data-parallax-speed="0.35"
           className="text-lg sm:text-xl text-[#a1a1a1] max-w-2xl text-balance leading-relaxed mb-10"
         >
           Step into a live workplace environment. Triage high-stakes production outages,
@@ -55,7 +126,8 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.5, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          data-parallax-speed="0.45"
           className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
         >
           <Link href="/simulate/production-incident-payment-api" className="w-full sm:w-auto">
@@ -76,7 +148,8 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.55 }}
+          transition={{ duration: 0.6, delay: 1.2 }}
+          data-parallax-speed="0.55"
           className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 pt-8 border-t border-white/[0.06] w-full max-w-3xl text-left"
         >
           <div className="flex flex-col">

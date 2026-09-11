@@ -159,3 +159,77 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Lenis smooth scrolling integration */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+.lenis [data-lenis-prevent],
+.lenis [data-lenis-prevent-wheel],
+.lenis [data-lenis-prevent-touch],
+.lenis [data-lenis-prevent-vertical],
+.lenis [data-lenis-prevent-horizontal] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+
+/* Animated grain shift */
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(1px, -1px); }
+  75% { transform: translate(-1px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+
+.grain-animate {
+  animation: grainShift 0.15s steps(4) infinite;
+}
+
+/* Section dividers */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(196, 5, 5, 0.15) 25%,
+    rgba(196, 5, 5, 0.25) 50%,
+    rgba(196, 5, 5, 0.15) 75%,
+    transparent 100%
+  );
+  transform-origin: center;
+}
+
+/* Scroll-driven motion tokens */
+:root {
+  --spring-bounce: 0.05;
+  --spring-duration: 0.6s;
+  --stagger-children: 0.08s;
+  --stagger-hero: 0.15s;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
+}
+
+/* Reduced motion: disable all custom animations */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .grain-animate {
+    animation: none;
+  }
+  .section-divider {
+    transform: scaleX(1) !important;
+    opacity: 1 !important;
+  }
+}

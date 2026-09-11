@@ -1,10 +1,8 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'motion/react';
-import { X, Check, ArrowRight } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import Link from 'next/link';
-import { GlowButton } from '@/components/shared/GlowButton';
 
 const TRADITIONAL_ITEMS = [
   'Passive 40-hour video courses with low completion rates',
@@ -24,7 +22,7 @@ const WORKSIM_ITEMS = [
 
 export function ComparisonSection() {
   return (
-    <section id="comparison" className="py-20 md:py-28 relative z-10 border-t border-white/[0.06]">
+    <section id="comparison" data-section="comparison" className="py-20 md:py-28 relative z-10 border-t border-white/[0.06]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -35,18 +33,15 @@ export function ComparisonSection() {
             The difference between studying and doing.
           </h3>
           <p className="text-[#a1a1a1] text-base leading-relaxed">
-            Hiring managers don't care how many videos you watched. They want to know if you can resolve an outage when the company is losing revenue every minute.
+            Hiring managers don&apos;t care how many videos you watched. They want to know if you can resolve an outage when the company is losing revenue every minute.
           </p>
         </div>
 
         {/* Comparison Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Traditional EdTech Column */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+          <div
+            data-comp-left
             className="rounded-2xl border border-white/[0.06] bg-[#0e0f13]/70 p-6 sm:p-8 flex flex-col justify-between"
           >
             <div>
@@ -74,18 +69,18 @@ export function ComparisonSection() {
             <div className="mt-8 pt-6 border-t border-white/[0.06] text-xs font-mono text-[#666666]">
               Result: Low retention & inability to debug unguided production issues.
             </div>
-          </motion.div>
+          </div>
 
           {/* WorkSim Column */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-2xl border border-[#c40505]/40 bg-[#141215]/80 p-6 sm:p-8 flex flex-col justify-between shadow-[0_0_40px_rgba(196,5,5,0.15)] relative overflow-hidden"
+          <div
+            data-comp-right
+            className="rounded-2xl border border-[#c40505]/40 bg-[#141215]/80 p-6 sm:p-8 flex flex-col justify-between shadow-[0_0_40px_rgba(196,5,5,0.15)] relative overflow-hidden group"
           >
             {/* Subtle glow orb */}
-            <div className="absolute -top-20 -right-20 w-48 h-48 bg-[#c40505]/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-48 h-48 bg-[#c40505]/20 rounded-full blur-3xl pointer-events-none group-hover:bg-[#c40505]/30 transition-all duration-700" />
+
+            {/* Pulse ring effect when in view */}
+            <div className="absolute inset-0 rounded-2xl border-2 border-[#c40505]/0 group-hover:border-[#c40505]/20 transition-all duration-700 pointer-events-none" />
 
             <div>
               <div className="flex items-center justify-between pb-4 mb-6 border-b border-white/[0.08]">
@@ -119,7 +114,7 @@ export function ComparisonSection() {
                 </span>
               </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

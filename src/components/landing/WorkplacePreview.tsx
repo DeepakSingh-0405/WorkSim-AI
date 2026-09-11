@@ -7,7 +7,6 @@ import {
   FileCode2,
   Terminal,
   Activity,
-  AlertTriangle,
   CheckCircle2,
   Clock,
   Sparkles,
@@ -38,7 +37,7 @@ export function WorkplacePreview() {
   }, [autoCycle]);
 
   return (
-    <section id="preview" className="py-16 md:py-24 relative z-10">
+    <section id="preview" data-section="preview" className="py-16 md:py-24 relative z-10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
@@ -69,7 +68,7 @@ export function WorkplacePreview() {
                     setActiveStep(tab.id as PreviewStep);
                     setAutoCycle(false);
                   }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
                     isActive
                       ? 'bg-white/10 text-white border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.08)]'
                       : 'bg-[#111111] text-[#a1a1a1] border border-white/5 hover:border-white/10 hover:text-white'
@@ -83,8 +82,15 @@ export function WorkplacePreview() {
           </div>
         </div>
 
-        {/* Browser / Workspace Container */}
-        <div className="rounded-xl border border-white/10 bg-[#0d0f12] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+        {/* Browser / Workspace Container — 3D perspective tilt via GSAP */}
+        <div
+          data-preview-card
+          className="rounded-xl border border-white/10 bg-[#0d0f12] overflow-hidden"
+          style={{
+            transformOrigin: 'center center',
+            boxShadow: '0 30px 80px rgba(0,0,0,0.8), 0 0 40px rgba(196,5,5,0.08)',
+          }}
+        >
           {/* Workspace Titlebar */}
           <div className="bg-[#14171d] px-4 py-2.5 border-b border-white/[0.08] flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -114,10 +120,10 @@ export function WorkplacePreview() {
               {activeStep === 'slack' && (
                 <motion.div
                   key="slack"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   className="grid grid-cols-1 md:grid-cols-3 gap-4"
                 >
                   {/* Channels Sidebar Mock */}
@@ -203,10 +209,10 @@ export function WorkplacePreview() {
               {activeStep === 'logs' && (
                 <motion.div
                   key="logs"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   className="bg-[#0e1015] border border-white/[0.08] rounded-lg p-4 font-mono text-xs overflow-x-auto space-y-2 leading-relaxed"
                 >
                   <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 mb-3 text-[11px] text-[#666666]">
@@ -242,10 +248,10 @@ export function WorkplacePreview() {
               {activeStep === 'code' && (
                 <motion.div
                   key="code"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs"
                 >
                   {/* Monaco Mock Editor */}
@@ -300,10 +306,10 @@ export function WorkplacePreview() {
               {activeStep === 'evaluation' && (
                 <motion.div
                   key="evaluation"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, y: 10, scale: 0.99 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.99 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   className="bg-[#111318] border border-white/[0.08] rounded-lg p-5"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
@@ -351,9 +357,9 @@ export function WorkplacePreview() {
 
                     {/* Key Manager Takeaway */}
                     <div className="bg-white/[0.02] border border-white/[0.06] rounded-lg p-3 text-xs">
-                      <span className="font-mono text-[#a1a1a1] text-[10px] block mb-1">Priya Sharma's Evaluation</span>
+                      <span className="font-mono text-[#a1a1a1] text-[10px] block mb-1">Priya Sharma&apos;s Evaluation</span>
                       <p className="text-[#d1d5db] leading-relaxed italic">
-                        "Fast triage of the timeout anomaly under time pressure. Excellent communication in the incident channel before modifying code."
+                        &quot;Fast triage of the timeout anomaly under time pressure. Excellent communication in the incident channel before modifying code.&quot;
                       </p>
                     </div>
                   </div>

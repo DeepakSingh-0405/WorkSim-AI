@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { AnimatedBackground } from '@/components/shared/AnimatedBackground';
 import { GrainOverlay } from '@/components/shared/GrainOverlay';
@@ -9,6 +11,7 @@ import { HowItWorks } from '@/components/landing/HowItWorks';
 import { ComparisonSection } from '@/components/landing/ComparisonSection';
 import { CTASection } from '@/components/landing/CTASection';
 import { Footer } from '@/components/landing/Footer';
+import { ScrollOrchestrator } from '@/components/landing/ScrollOrchestrator';
 
 export default function HomePage() {
   return (
@@ -20,18 +23,31 @@ export default function HomePage() {
       {/* Navigation Header */}
       <Navbar />
 
-      {/* Page Sections */}
-      <main className="relative z-10 flex flex-col">
-        <Hero />
-        <WorkplacePreview />
-        <FeaturesGrid />
-        <HowItWorks />
-        <ComparisonSection />
-        <CTASection />
-      </main>
+      {/* GSAP Scroll-Driven Animation Orchestrator */}
+      <ScrollOrchestrator>
+        {/* Page Sections with dividers */}
+        <main className="relative z-10 flex flex-col">
+          <Hero />
 
-      {/* Footer */}
-      <Footer />
+          <div className="section-divider max-w-4xl mx-auto w-full" aria-hidden="true" />
+          <WorkplacePreview />
+
+          <div className="section-divider max-w-4xl mx-auto w-full" aria-hidden="true" />
+          <FeaturesGrid />
+
+          <div className="section-divider max-w-4xl mx-auto w-full" aria-hidden="true" />
+          <HowItWorks />
+
+          <div className="section-divider max-w-4xl mx-auto w-full" aria-hidden="true" />
+          <ComparisonSection />
+
+          <div className="section-divider max-w-4xl mx-auto w-full" aria-hidden="true" />
+          <CTASection />
+        </main>
+
+        {/* Footer */}
+        <Footer />
+      </ScrollOrchestrator>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Logo } from '@/components/shared/Logo';
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/[0.08] bg-[#08080a] py-12 relative z-10 text-xs text-[#a1a1a1]">
+    <footer data-section="footer" className="border-t border-white/[0.08] bg-[#08080a] py-12 relative z-10 text-xs text-[#a1a1a1]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex flex-col sm:flex-row items-center gap-4">
           <Logo size="sm" />
